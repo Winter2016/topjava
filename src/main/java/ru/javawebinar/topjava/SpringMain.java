@@ -21,10 +21,10 @@ public class SpringMain {
             //adminUserController.create(new User(null, "userName", "email@mail.ru", "password", Role.ROLE_ADMIN));
             MealRepository mealRepository = appCtx.getBean(InMemoryMealRepositoryImpl.class);
             //mealRepository.getAll().forEach(meal -> System.out.println(meal.toString()));
-            System.out.println(mealRepository.delete(4));
+       /*     System.out.println(mealRepository.delete(4));
             System.out.println(mealRepository.delete(1));
             System.out.println(mealRepository.get(2));
-            System.out.println(mealRepository.get(4));
+            System.out.println(mealRepository.get(4));*/
         }
     }
 }
