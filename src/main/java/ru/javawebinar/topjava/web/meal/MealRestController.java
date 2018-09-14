@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 
@@ -25,7 +26,9 @@ public class MealRestController {
     }
 
     public Collection<MealWithExceed> getAllFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-        return service.getAllFiltered(startDate, endDate, startTime, endTime, authUserId());
+        LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
+        LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime);
+        return service.getAllFiltered(startDateTime, endDateTime, authUserId());
     }
 
     public MealWithExceed get(int id) {

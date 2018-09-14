@@ -8,27 +8,29 @@ import ru.javawebinar.topjava.to.MealWithExceed;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFound;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
 @Service
 public class MealServiceImpl implements MealService {
 
     private MealRepository repository;
+    private UserService userService;
 
     @Autowired
-    public MealServiceImpl(MealRepository repository) {
+    public MealServiceImpl(MealRepository repository, UserService userService) {
         this.repository = repository;
+        this.userService = userService;
     }
 
     @Override
     public MealWithExceed create(Meal meal, int authUserId) {
         Meal newMeal = repository.save(meal, authUserId);
-        //TODO add real exceeded
-        return MealsUtil.createWithExceed(newMeal, false);
+        checkNotFound(newMeal, "this id");
+        return get(newMeal.getId(), authUserId);
     }
 
     @Override
@@ -38,21 +40,26 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public MealWithExceed get(int id, int authUserId) throws NotFoundException {
-        Meal meal = checkNotFoundWithId(repository.get(id, authUserId), id);
-        return MealsUtil.createWithExceed(meal, true);
+        return getAll(authUserId)
+                .stream()
+                .filter(meal -> id == meal.getId())
+                .peek(meal -> checkNotFoundWithId(meal, id))
+                .findAny()
+                .get();
     }
 
     @Override
-    public Collection<MealWithExceed> getAllFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, int authUserId){
+    public Collection<MealWithExceed> getAllFiltered(LocalDateTime startDateTime, LocalDateTime endDateTime, int authUserId) {
         Collection<Meal> meals = repository.getAll(authUserId);
-        //TODO add real
-        return MealsUtil.getWithExceeded(meals, 200);
+        int caloriesPerDay = userService.get(authUserId).getCaloriesPerDay();
+        return MealsUtil.getFilteredWithExceeded(meals, caloriesPerDay, startDateTime, endDateTime);
     }
 
     @Override
     public Collection<MealWithExceed> getAll(int authUserId) {
         Collection<Meal> meals = repository.getAll(authUserId);
-        return MealsUtil.getWithExceeded(meals, 200);
+        int caloriesPerDay = userService.get(authUserId).getCaloriesPerDay();
+        return MealsUtil.getWithExceeded(meals, caloriesPerDay);
     }
 
     @Override
