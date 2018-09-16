@@ -58,7 +58,7 @@ public class JdbcMealRepositoryImpl implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        return jdbcTemplate.update("DELETE FROM meals WHERE id=?", id) != 0;
+        return jdbcTemplate.update("DELETE FROM meals WHERE id=? and user_id=?", id, userId) != 0;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class JdbcMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return jdbcTemplate.query("SELECT * from meals WHERE user_id=?", ROW_MAPPER, userId);
+        return jdbcTemplate.query("SELECT * from meals WHERE user_id=? ORDER BY datetime DESC", ROW_MAPPER, userId);
     }
 
     @Override
