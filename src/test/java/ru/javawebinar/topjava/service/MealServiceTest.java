@@ -108,7 +108,7 @@ public class MealServiceTest {
     @Test(expected = NotFoundException.class)
     public void updateForbidden() {
         Meal updated = new Meal(meal1);
-        updated.setDescription("New breakfast");
+        updated.setDateTime(LocalDateTime.now());
         service.update(updated, ADMIN_ID);
         assertMatch(service.get(START_SEQ + 2, USER_ID), updated);
     }
