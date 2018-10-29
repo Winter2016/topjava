@@ -1,7 +1,15 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -11,7 +19,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -26,9 +36,31 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MealServiceTest.class);
+
     static {
         SLF4JBridgeHandler.install();
     }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Rule
+    public TestRule durationRule = new TestWatcher() {
+        @Override
+        public Statement apply(Statement statement, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    LocalDateTime startTime = LocalDateTime.now();
+                    statement.evaluate();
+                    LocalDateTime endTime = LocalDateTime.now();
+                    Duration duration = Duration.between(startTime, endTime);
+                    LOGGER.info(description.getMethodName() + " executionTime is " + duration);
+                }
+            };
+        }
+    };
 
     @Autowired
     private MealService service;
@@ -39,8 +71,10 @@ public class MealServiceTest {
         assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void deleteNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
+        thrown.expectMessage("Not found entity with id=1");
         service.delete(MEAL1_ID, 1);
     }
 
@@ -57,8 +91,10 @@ public class MealServiceTest {
         assertMatch(actual, ADMIN_MEAL1);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void getNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
+        thrown.expectMessage("Not found entity with id=1");
         service.get(MEAL1_ID, ADMIN_ID);
     }
 
@@ -69,8 +105,10 @@ public class MealServiceTest {
         assertMatch(service.get(MEAL1_ID, USER_ID), updated);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void updateNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
+        thrown.expectMessage("Not found entity with id=1");
         service.update(MEAL1, ADMIN_ID);
     }
 
