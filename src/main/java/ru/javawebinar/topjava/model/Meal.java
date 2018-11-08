@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @NamedQueries({
-        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m INNER JOIN FETCH m.user WHERE m.id=:id AND m" +
+        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m" +
                 ".user=:user"),
-        @NamedQuery(name = Meal.BETWEEN, query = "SELECT m FROM Meal m  WHERE m.datetime BETWEEN ?1 AND ?2 AND m.user=:user"),
-        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m ORDER BY m.datetime WHERE m.user=:user"),
+        @NamedQuery(name = Meal.BETWEEN, query = "SELECT m FROM Meal m WHERE m.dateTime BETWEEN ?1 AND ?2 AND m.user=:user ORDER BY m.dateTime desc"),
+        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m WHERE m.user=:user ORDER BY m.dateTime desc"),
 })
 @Entity
 @Table(name = "meals")
@@ -22,7 +22,7 @@ public class Meal extends AbstractBaseEntity {
     public static final String BETWEEN = "Meal.getBetween";
     public static final String ALL_SORTED = "Meal.getAllSorted";
 
-    @Column(name = "datetime", columnDefinition = "timestamp default now()")
+    @Column(name = "date_time", columnDefinition = "timestamp default now()")
     @NotNull
     @DateTimeFormat
     private LocalDateTime dateTime = LocalDateTime.now();
