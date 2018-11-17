@@ -70,6 +70,7 @@ public abstract class UserServiceTest {
                 "\n---------------------------------" +
                 results +
                 "\n---------------------------------");
+        results.setLength(0);
     }
 
     @Autowired
